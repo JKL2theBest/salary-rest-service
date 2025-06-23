@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "salary-rest-service"
+version = "0.1.0"
+description = "A REST service to view salary and next raise date."
+authors = ["JKL2theBest <muhammet.jkl2.suhanguylev@gmail.com>"]
+readme = "README.md"
+packages = [{include = "app"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.104.1"
+uvicorn = {extras = ["standard"], version = "^0.24.0"}
+pydantic = {extras = ["email"], version = "^2.5.2"}
+pydantic-settings = "^2.1.0"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "1.7.4"}
+bcrypt = "3.2.0" # совместимую версию
+python-multipart = "^0.0.6"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+httpx = "^0.25.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.main.api"
