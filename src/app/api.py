@@ -1,4 +1,3 @@
-# src/app/api.py
 from datetime import timedelta
 from typing import Annotated
 

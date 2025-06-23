@@ -1,4 +1,3 @@
-# src/app/services.py
 from typing import Union
 from app.models import UserInDB
 
