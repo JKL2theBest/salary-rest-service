@@ -1,10 +1,10 @@
-# app/database.py
+# src/app/services.py
+from typing import Union
+from app.models import UserInDB
 
-# Имитация базы данных пользователей.
-# В реальном приложении здесь будет подключение к PostgreSQL, SQLite, и т.д.
 # Пароль для user1: "strongpassword1"
 # Пароль для user2: "supersecret2"
-FAKE_USERS_DB = {
+FAKE_USERS_DB: dict[str, dict] = {
     "user1": {
         "username": "user1",
         "hashed_password": "$2b$12$mozSsO55.V.s2e283Rerv.Ro9gFUYERRzDVtWidFLk6iVcNSusFmG",
@@ -19,8 +19,11 @@ FAKE_USERS_DB = {
     },
 }
 
-def get_user_from_db(username: str) -> dict | None:
+
+def get_user(username: str) -> Union[UserInDB, None]:  # <-- ИЗМЕНЕНО
     """
-    Получение данных пользователя из имитации базы данных.
+    Получение данных пользователя из имитации БД.
     """
-    return FAKE_USERS_DB.get(username)
+    if user_data := FAKE_USERS_DB.get(username):
+        return UserInDB(**user_data)
+    return None

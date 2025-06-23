@@ -10,42 +10,79 @@
 *   **Docker**: для контейнеризации приложения.
 *   **GitLab CI/CD**: для автоматизации тестирования и сборки.
 
-## Инструкция по запуску (локально)
+## Структура проекта
 
+```
+.
+├── src/
+│   └── app/
+│       ├── __init__.py
+│       ├── api.py
+│       ├── auth.py
+│       ├── core/
+│       │   └── config.py
+│       ├── main.py
+│       ├── models.py
+│       └── services.py
+├── tests/
+├── .env
+├── .gitignore
+├── .gitlab-ci.yml
+├── Dockerfile
+├── pyproject.toml
+└── README.md
+```
+
+## Установка и запуск
+
+### 1. Предварительные требования
+- Python 3.9+
+- Poetry
+- Docker (опционально, для запуска в контейнере)
+
+### 2. Конфигурация
+Перед первым запуском создайте файл `.env` в корне проекта, скопировав в него содержимое из `.env.example` (если он есть) или создав с нуля:
+```ini
+# .env
+SECRET_KEY="<your_super_secret_key_here>"
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+ALGORITHM="HS256"
+```
+> **Важно**: В реальном проекте `.env` файл не должен попадать в Git. Убедитесь, что он добавлен в `.gitignore`.
+
+### 3. Запуск локально
 1.  **Клонируйте репозиторий:**
     ```bash
     git clone <your-repo-url>
     cd salary-rest-service
     ```
-
-2.  **Установите Poetry** (если он еще не установлен):
-    ```bash
-    pip install poetry
-    ```
-
-3.  **Установите зависимости проекта:**
+2.  **Установите зависимости:**
     ```bash
     poetry install
     ```
-
-4.  **Запустите сервис:**
+3.  **Запустите сервис:**
     ```bash
-    poetry run uvicorn app.main:app --reload
+    poetry run uvicorn app.main:app --reload --app-dir src
+    poetry run uvicorn app.main:app --reload --app-dir src --port 8001
     ```
-    Сервис будет доступен по адресу `http://127.0.0.1:8000`. Интерактивная документация (Swagger UI) будет доступна по адресу `http://127.0.0.1:8000/docs`.
+    Сервис будет доступен по адресу `http://127.0.0.1:8000`. Интерактивная документация (Swagger UI) — `http://127.0.0.1:8000/docs`.
 
-## Инструкция по запуску (Docker)
-
+### 4. Запуск в Docker
 1.  **Соберите Docker-образ:**
     ```bash
-    docker build -t salary-rest-service .
+    docker build -t salary-service .
     ```
-
 2.  **Запустите контейнер:**
     ```bash
-    docker run -d --name salary-app -p 8000:8000 salary-rest-service
+    docker run -d --name salary-app -p 8000:8000 salary-service
+    docker run -d -p 8001:8000 --name salary-app salary-rest-service
     ```
-    Сервис будет доступен по адресу `http://127.0.0.1:8000`.
+
+## Тестирование
+Для запуска тестов и просмотра отчета о покрытии выполните:
+```bash
+poetry run pytest --cov=app --cov-report=term-missing
+```
 
 ## Взаимодействие с API
 
@@ -54,59 +91,12 @@
 *   `user2` с паролем `supersecret2`
 
 ### 1. Получение токена доступа
-
-Отправьте POST-запрос на `/token` с вашими учетными данными.
-
 ```bash
-curl -X POST "http://127.0.0.1:8000/token" \
--H "Content-Type: application/x-www-form-urlencoded" \
--d "username=user1&password=strongpassword1"
-```
-
-**Ответ:**
-```json
-{
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "token_type": "bearer"
-}
+curl -X POST "http://127.0.0.1:8000/token" -H "Content-Type: application/x-www-form-urlencoded" -d "username=user1&password=strongpassword1"
 ```
 
 ### 2. Получение данных о зарплате
-
-Отправьте GET-запрос на `/users/me/salary`, используя полученный токен в заголовке `Authorization`.
-
-> **Примечание**: Замените `YOUR_TOKEN` на токен, полученный на предыдущем шаге.
-
+Замените `YOUR_TOKEN` на токен, полученный на предыдущем шаге.
 ```bash
-curl -X GET "http://127.0.0.1:8000/users/me/salary" \
--H "Authorization: Bearer YOUR_TOKEN"
-```
-
-**Ответ для `user1`:**
-```json
-{
-  "salary": 60000,
-  "next_raise_date": "2024-08-01"
-}
-```
-
-### 3. Пример ошибки (неверный токен)
-
-```bash
-curl -X GET "http://127.0.0.1:8000/users/me/salary" \
--H "Authorization: Bearer invalidtoken"
-```
-
-**Ответ:**
-```json
-{
-  "detail": "Could not validate credentials"
-}
-```
-
-## Запуск тестов
-
-Для запуска тестов выполните команду:
-```bash
-poetry run pytest
+curl -X GET "http://127.0.0.1:8000/users/me/salary" -H "Authorization: Bearer YOUR_TOKEN"
 ```
