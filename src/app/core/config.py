@@ -3,8 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     """
-    Класс для хранения настроек приложения.
-    Значения берутся из переменных окружения или файла .env.
+    Значения настроек берутся из переменных окружения или файла .env.
     """
 
     SECRET_KEY: str

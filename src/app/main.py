@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from starlette.staticfiles import StaticFiles
-from pathlib import Path 
+from pathlib import Path
 from app import api
 
 BASE_DIR = Path(__file__).resolve().parent

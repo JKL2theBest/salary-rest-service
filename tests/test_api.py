@@ -1,12 +1,13 @@
 from fastapi.testclient import TestClient
+
+# unittest.mock.patch для "подмены" функций во время теста.
 from unittest.mock import patch
 
 
 def test_read_root(client: TestClient):
     response = client.get("/")
     assert response.status_code == 200
-
-    assert "text/html" in response.headers['content-type']
+    assert "text/html" in response.headers["content-type"]
     assert "<title>Salary Service</title>" in response.text
 
 
@@ -52,9 +53,8 @@ def test_get_salary_invalid_token(client: TestClient):
 
 def test_get_salary_with_token_for_nonexistent_user(client: TestClient):
     """
-    Тестирует случай, когда токен валиден, но пользователя уже нет в БД.
+    Если токен валиден, но пользователя уже нет в БД.
     """
-
     login_response = client.post(
         "/token", data={"username": "user2", "password": "supersecret2"}
     )
@@ -74,15 +74,14 @@ def test_get_salary_with_token_for_nonexistent_user(client: TestClient):
 
 def test_get_salary_with_malformed_token(client: TestClient):
     """
-    Тестирует случай, когда в JWT-токене нет поля 'sub'.
+    Если в JWT-токене нет поля 'sub'.
     """
     from app import auth
-    from app.core.config import settings
     from datetime import timedelta
 
     expires_delta = timedelta(minutes=15)
     malformed_token = auth.create_access_token(data={}, expires_delta=expires_delta)
-    
+
     headers = {"Authorization": f"Bearer {malformed_token}"}
     response = client.get("/users/me/salary", headers=headers)
 
@@ -91,22 +90,17 @@ def test_get_salary_with_malformed_token(client: TestClient):
 
 
 def test_login_with_nonexistent_user(client: TestClient):
-    """
-    Проверяет попытку входа несуществующего пользователя.
-    """
-    response = client.post(
-        "/token", data={"username": "ghost", "password": "password"}
-    )
+    response = client.post("/token", data={"username": "ghost", "password": "password"})
     assert response.status_code == 401
     assert response.json()["detail"] == "Incorrect username or password"
 
 
 def test_get_salary_with_token_without_sub_claim(client: TestClient):
-
     from app import auth
     from datetime import timedelta
 
-    token_data = {"user_id": 123} 
+    # Граничный случай, который важно проверить.
+    token_data = {"user_id": 123}
     expires = timedelta(minutes=15)
     malformed_token = auth.create_access_token(data=token_data, expires_delta=expires)
 
@@ -116,20 +110,21 @@ def test_get_salary_with_token_without_sub_claim(client: TestClient):
     assert response.status_code == 401
     assert response.json()["detail"] == "Could not validate credentials"
 
+
 def test_create_access_token_default_expiration():
     """
-    Проверяет, что create_access_token без expires_delta создает токен.
+    Проверяет, что create_access_token правильно работает без явного указания времени жизни.
     """
     from app import auth
     from jose import jwt
     from app.core.config import settings
 
     token = auth.create_access_token(data={"sub": "testuser"})
-    
+
     assert isinstance(token, str)
 
     decoded_payload = jwt.decode(
         token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
     )
     assert decoded_payload["sub"] == "testuser"
-    assert "exp" in decoded_payload
+    assert "exp" in decoded_payload  # expiration time должно присутствовать.

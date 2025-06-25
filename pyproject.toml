@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "salary-rest-service"
 version = "0.1.0"
-description = "A REST service to view salary and next raise date."
-authors = ["Your Name <you@example.com>"]
+description = "A secure FastAPI REST service for viewing salary data using JWT authentication." 
+authors = ["JKL2theBest <muhammet.jkl2.suhanguylev@gmail.com>"] 
 readme = "README.md"
 packages = [{include = "app", from = "src"}]
 
@@ -12,9 +12,11 @@ fastapi = "^0.111.0"
 uvicorn = {extras = ["standard"], version = "^0.30.1"}
 pydantic = "^2.7.4"
 pydantic-settings = "^2.3.4"
+# JWT
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+# Hashes
 passlib = {extras = ["bcrypt"], version = "1.7.4"}
-bcrypt = "3.2.0"
+# FastAPI (OAuth2)
 python-multipart = "^0.0.9"
 
 [tool.poetry.group.dev.dependencies]

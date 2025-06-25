@@ -9,7 +9,9 @@ from passlib.context import CryptContext
 from app import models, services
 from app.core.config import settings
 
+# Для работы с хэшами паролей
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
 
@@ -24,6 +26,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
+        # Временя жизни по умолчанию, если оно не было передано.
         expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
@@ -34,7 +37,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
 
 def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> models.UserInDB:
     """
-    Декодирует токен, проверяет его валидность и возвращает пользователя.
+    Декодирует токен, проверяет его валидность и возвращает пользователя из БД.
     """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -53,6 +56,7 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> models.Us
         raise credentials_exception
 
     user = services.get_user(username=token_data.username)
+
     if user is None:
         raise credentials_exception
     return user
