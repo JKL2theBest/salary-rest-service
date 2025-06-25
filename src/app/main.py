@@ -15,7 +15,13 @@ app = FastAPI(
     version="0.1.0",
 )
 
-app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
+app.mount(
+    "/static",
+    StaticFiles(directory=BASE_DIR / "static"),
+    name="static",
+)
+
+templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
 app.include_router(api.router)
 
@@ -25,4 +31,4 @@ def read_root(request: Request):
     """
     Корневой эндпоинт, который отображает приветственную HTML-страницу.
     """
-    return templates.TemplateResponse(request, "index.html")
+    return templates.TemplateResponse(request=request, name="index.html")

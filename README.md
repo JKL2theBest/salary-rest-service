@@ -65,11 +65,11 @@ cd salary-rest-service
 
 1.  **Соберите Docker-образ:**
     ```bash
-    docker build -t salary-service .
+    docker build -t salary-rest-service .
     ```
 2.  **Запустите контейнер:**
     ```bash
-    docker run -d -p 8001:8000 --name salary-app --env-file ./.env salary-service
+    docker run -d -p 8001:8000 --name salary-app salary-rest-service
     ```
 
 *   **Готово!** Сервис доступен по адресу `http://127.0.0.1:8001`.
